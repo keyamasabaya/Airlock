@@ -1,0 +1,225 @@
+/* Airlock - bandeau injecte sur claude.ai
+ *
+ * Carte flottante, deplacable, ancree en bas a droite par defaut.
+ * Neumorphisme sombre, coherent avec la vue methodologie : le relief vient
+ * d'une paire d'ombres opposees sur une surface de ton moyen.
+ *
+ * Tout est prefixe #airlock-banner et les valeurs sont explicites, parce que
+ * ce CSS s'injecte dans une page tierce dont on ne maitrise pas les heritages.
+ */
+
+#airlock-banner.airlock-banner {
+  /* position par defaut : bas a droite, ecrasee des que l'utilisateur deplace */
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  left: auto;
+  top: auto;
+
+  z-index: 2147483000;          /* sous le maximum, pour rester derriere un dialog natif */
+  box-sizing: border-box;
+  width: 310px;
+  max-width: calc(100vw - 32px);
+  padding: 0;
+
+  background: #23262b;
+  border: 1px solid #31363d;
+  border-radius: 18px;
+  box-shadow:
+    -6px -6px 14px rgba(255, 255, 255, 0.035),
+    8px 8px 22px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #e9ecef;
+  text-align: left;
+
+  animation: airlockIn 0.28s ease-out;
+}
+
+@keyframes airlockIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* deplacement en cours : plus d'animation, curseur et relief adaptes */
+#airlock-banner.airlock-dragging {
+  animation: none;
+  cursor: grabbing;
+  box-shadow:
+    -6px -6px 14px rgba(255, 255, 255, 0.045),
+    14px 18px 40px rgba(0, 0, 0, 0.68);
+}
+
+/* ─── entete : poignee de deplacement, libelle, fermeture ──────────────── */
+
+#airlock-banner .airlock-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 12px 0 16px;
+  cursor: grab;
+  touch-action: none;           /* indispensable au drag au doigt */
+  user-select: none;
+}
+#airlock-banner .airlock-head:active { cursor: grabbing; }
+
+#airlock-banner .airlock-grip {
+  flex-shrink: 0;
+  width: 13px; height: 13px;
+  color: #5c646d;
+  pointer-events: none;
+}
+
+#airlock-banner .airlock-label {
+  flex: 1;
+  margin: 0;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #8b939c;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#airlock-banner .airlock-close {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  width: 26px; height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: #7b848e;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color .14s ease, color .14s ease;
+}
+#airlock-banner .airlock-close:hover { background: #2c3138; color: #e9ecef; }
+#airlock-banner .airlock-close:focus-visible { outline: 2px solid #fbbf24; outline-offset: 2px; }
+
+/* ─── corps ────────────────────────────────────────────────────────────── */
+
+#airlock-banner .airlock-body { padding: 7px 16px 15px; }
+
+/* l'element central : le focus doit dominer visuellement */
+#airlock-banner .airlock-focus {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: #f4f6f8;
+  overflow-wrap: anywhere;
+}
+
+#airlock-banner .airlock-dot {
+  flex-shrink: 0;
+  width: 8px; height: 8px;
+  margin-top: 7px;
+  border-radius: 50%;
+  background: #34d399;
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.16);
+}
+#airlock-banner .airlock-dot.idle {
+  background: #fbbf24;
+  box-shadow: 0 0 0 3px rgba(251, 191, 36, 0.16);
+}
+
+/* texte long : deux lignes maximum, puis ellipse */
+#airlock-banner .airlock-focus-text {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+#airlock-banner .airlock-nudge {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: #c3cad1;
+}
+
+/* ─── pied : metadonnees ───────────────────────────────────────────────── */
+
+#airlock-banner .airlock-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 13px;
+  padding-top: 12px;
+  border-top: 1px solid #2c3138;
+}
+
+#airlock-banner .airlock-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: #202329;
+  box-shadow:
+    inset -2px -2px 5px rgba(255, 255, 255, 0.035),
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #a2abb5;
+  white-space: nowrap;
+}
+
+#airlock-banner kbd {
+  padding: 3px 7px;
+  border-radius: 6px;
+  background: #202329;
+  box-shadow:
+    inset -2px -2px 5px rgba(255, 255, 255, 0.035),
+    inset 2px 2px 6px rgba(0, 0, 0, 0.5);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: #d3d9df;
+  white-space: nowrap;
+}
+
+/* ─── rappel : une pulsation par minute ────────────────────────────────── */
+
+#airlock-banner.airlock-pulse { animation: airlockPulse 1.1s ease-in-out; }
+
+@keyframes airlockPulse {
+  0%, 100% {
+    box-shadow:
+      -6px -6px 14px rgba(255, 255, 255, 0.035),
+      8px 8px 22px rgba(0, 0, 0, 0.55),
+      0 0 0 0 rgba(251, 191, 36, 0);
+  }
+  35% {
+    box-shadow:
+      -6px -6px 14px rgba(255, 255, 255, 0.05),
+      8px 8px 26px rgba(0, 0, 0, 0.6),
+      0 0 0 5px rgba(251, 191, 36, 0.28);
+  }
+  70% {
+    box-shadow:
+      -6px -6px 14px rgba(255, 255, 255, 0.04),
+      8px 8px 24px rgba(0, 0, 0, 0.55),
+      0 0 0 11px rgba(251, 191, 36, 0);
+  }
+}
+
+/* Le clignotement est un rappel, pas une alarme : on le supprime pour qui
+   demande moins d'animation, sans le remplacer par un autre mouvement. */
+@media (prefers-reduced-motion: reduce) {
+  #airlock-banner.airlock-banner { animation: none; }
+  #airlock-banner.airlock-pulse  { animation: none; }
+}

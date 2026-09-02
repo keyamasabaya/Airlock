@@ -1,0 +1,281 @@
+/* Airlock - methodology view
+ *
+ * Neumorphisme sombre. Le relief vient d'une paire d'ombres opposees sur une
+ * surface de ton moyen : un fond quasi noir ne laisserait pas de place a
+ * l'ombre claire, d'ou une base plus haute que le #141414 du popup.
+ *
+ * Ecart assume au design system : les polices Space Mono / JetBrains Mono
+ * exigeraient un chargement externe, incompatible avec la promesse "aucun
+ * appel reseau" et avec la CSP d'une extension. On utilise les piles systeme,
+ * avec du monospace sur les numeros d'etape pour garder l'intention.
+ */
+
+:root {
+  /* surfaces */
+  --bg:          #23262b;
+  --surface:     #23262b;
+  --surface-in:  #202329;
+  --rule:        #2e333a;
+
+  /* relief */
+  --sh-light:    rgba(255, 255, 255, 0.045);
+  --sh-dark:     rgba(0, 0, 0, 0.55);
+
+  /* texte : contrastes verifies sur --bg */
+  --fg:          #e9ecef;  /* 12.1:1 */
+  --fg-muted:    #a2abb5;  /* 6.4:1  */
+  --fg-faint:    #7b848e;  /* 4.1:1  - reserve aux textes >= 18px ou gras */
+
+  /* accents, repris du gradient de l'icone */
+  --accent:      #fbbf24;
+  --accent-warm: #fb923c;
+  --accent-ink:  #1a1d21;
+  --success:     #34d399;
+  --danger:      #f87171;
+
+  --r-sm: 10px;
+  --r-md: 16px;
+  --r-lg: 22px;
+
+  --step: 8px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  overflow: hidden;
+}
+
+/* ─── relief ─────────────────────────────────────────────────────────── */
+
+.raised {
+  background: var(--surface);
+  box-shadow: -5px -5px 11px var(--sh-light), 5px 5px 12px var(--sh-dark);
+}
+
+.sunken {
+  background: var(--surface-in);
+  box-shadow: inset -4px -4px 9px var(--sh-light), inset 4px 4px 10px var(--sh-dark);
+}
+
+/* ─── ossature ───────────────────────────────────────────────────────── */
+
+.layout {
+  display: grid;
+  grid-template-columns: 25% 75%;
+  height: 100vh;
+}
+
+.pane { height: 100vh; overflow-y: auto; padding: 26px 22px 40px; }
+.pane-left  { border-right: 1px solid var(--rule); }
+.pane-right { padding: 26px 34px 60px; }
+
+/* Borne la longueur de ligne : au-dela d'environ 80 caracteres la lecture
+   decroche, et le bouton de validation se retrouve isole loin du texte. */
+.pane-right > #detail { max-width: 860px; }
+
+.pane::-webkit-scrollbar { width: 10px; }
+.pane::-webkit-scrollbar-thumb {
+  background: #2c3138; border-radius: 999px; border: 3px solid var(--bg);
+}
+
+/* ─── entete ─────────────────────────────────────────────────────────── */
+
+.brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+.brand img { width: 30px; height: 30px; border-radius: 9px; }
+.brand span { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+
+.eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--fg-faint);
+  margin-bottom: 12px;
+}
+
+/* ─── liste des impulsions ───────────────────────────────────────────── */
+
+.impulse-group + .impulse-group { margin-top: 26px; }
+
+.impulse {
+  display: flex; align-items: flex-start; gap: 10px;
+  width: 100%; text-align: left;
+  padding: 12px 13px; margin-bottom: 9px;
+  border: none; border-radius: var(--r-md);
+  font: inherit; color: var(--fg-muted);
+  cursor: pointer;
+  background: var(--surface);
+  box-shadow: -4px -4px 9px var(--sh-light), 4px 4px 10px var(--sh-dark);
+  transition: box-shadow .16s ease, color .16s ease, transform .16s ease;
+}
+.impulse:hover { color: var(--fg); transform: translateY(-1px); }
+.impulse:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.impulse[aria-current="true"] {
+  color: var(--fg);
+  background: var(--surface-in);
+  box-shadow: inset -3px -3px 8px var(--sh-light), inset 3px 3px 9px var(--sh-dark);
+}
+.impulse .txt { flex: 1; word-break: break-word; }
+
+.pill {
+  flex-shrink: 0; margin-top: 2px;
+  width: 8px; height: 8px; border-radius: 50%;
+  background: #454b53;
+}
+.pill.is-focus { background: var(--success); }
+.pill.is-queue { background: var(--accent); }
+
+.badge-count {
+  display: inline-block; margin-left: 6px;
+  font-size: 11px; color: var(--fg-faint);
+}
+
+.empty {
+  padding: 14px; border-radius: var(--r-md);
+  color: var(--fg-faint); font-size: 12.5px; font-style: italic;
+}
+
+/* ─── volet droit ────────────────────────────────────────────────────── */
+
+.head { margin-bottom: 24px; }
+.head h1 {
+  font-size: 27px; font-weight: 660; letter-spacing: -0.025em;
+  line-height: 1.2; margin-bottom: 8px; text-wrap: balance;
+}
+.head .meta { font-size: 12.5px; color: var(--fg-faint); }
+
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 28px; }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  min-height: 42px; padding: 0 20px;
+  border: none; border-radius: var(--r-md);
+  font: inherit; font-size: 13.5px; font-weight: 600;
+  color: var(--fg); background: var(--surface);
+  box-shadow: -4px -4px 9px var(--sh-light), 4px 4px 10px var(--sh-dark);
+  cursor: pointer;
+  transition: box-shadow .14s ease, transform .14s ease;
+}
+.btn:hover:not(:disabled) { transform: translateY(-1px); }
+.btn:active:not(:disabled) {
+  transform: none;
+  box-shadow: inset -3px -3px 8px var(--sh-light), inset 3px 3px 9px var(--sh-dark);
+}
+.btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.btn:disabled { color: var(--fg-faint); cursor: not-allowed; box-shadow: none; background: var(--surface-in); }
+
+.btn-primary { color: var(--accent-ink); background: linear-gradient(145deg, var(--accent), var(--accent-warm)); }
+.btn-primary:hover:not(:disabled) { filter: brightness(1.06); }
+.btn-primary:disabled { color: var(--fg-faint); background: var(--surface-in); }
+
+/* ─── etapes ─────────────────────────────────────────────────────────── */
+
+.steps { list-style: none; display: flex; flex-direction: column; gap: 14px; }
+
+.step {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 16px; align-items: start;
+  padding: 18px 20px;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: -5px -5px 11px var(--sh-light), 5px 5px 12px var(--sh-dark);
+  transition: box-shadow .18s ease, opacity .18s ease;
+}
+/* Une etape faite doit rester lisible : le barre et le creux suffisent a la
+   distinguer, inutile d'y ajouter une opacite qui casse le contraste. */
+.step.done {
+  background: var(--surface-in);
+  box-shadow: inset -3px -3px 8px var(--sh-light), inset 3px 3px 9px var(--sh-dark);
+}
+.step.done .step-text { text-decoration: line-through; color: var(--fg-muted); }
+
+.step-n {
+  display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+  font-size: 14px; font-weight: 700;
+  color: var(--accent-ink);
+  background: linear-gradient(145deg, var(--accent), var(--accent-warm));
+  box-shadow: 3px 3px 7px var(--sh-dark);
+}
+.step.done .step-n {
+  color: var(--fg-faint);
+  background: var(--surface-in);
+  box-shadow: inset 2px 2px 5px var(--sh-dark), inset -2px -2px 5px var(--sh-light);
+}
+
+.step-text { font-size: 14.5px; line-height: 1.6; word-break: break-word; }
+
+.step-check {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border: none; border-radius: 50%;
+  color: var(--fg-faint); font-size: 15px; line-height: 1;
+  background: var(--surface);
+  box-shadow: -3px -3px 7px var(--sh-light), 3px 3px 8px var(--sh-dark);
+  cursor: pointer;
+  transition: color .14s ease, box-shadow .14s ease;
+}
+.step-check:hover { color: var(--success); }
+.step-check:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.step.done .step-check {
+  color: var(--success);
+  box-shadow: inset -2px -2px 6px var(--sh-light), inset 2px 2px 7px var(--sh-dark);
+}
+
+/* ─── etats ──────────────────────────────────────────────────────────── */
+
+.state {
+  display: grid; place-items: center; gap: 14px;
+  padding: 60px 30px; text-align: center;
+  border-radius: var(--r-lg);
+  color: var(--fg-muted);
+  background: var(--surface-in);
+  box-shadow: inset -4px -4px 9px var(--sh-light), inset 4px 4px 10px var(--sh-dark);
+}
+.state h2 { font-size: 17px; font-weight: 620; color: var(--fg); }
+.state p { max-width: 46ch; font-size: 13.5px; }
+.state.error { color: var(--danger); }
+.state.error h2 { color: var(--danger); }
+.state code {
+  display: inline-block; margin-top: 4px; padding: 3px 8px;
+  border-radius: 6px; background: #1a1d21;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px;
+  color: var(--fg-muted);
+}
+
+.spinner {
+  width: 30px; height: 30px; border-radius: 50%;
+  border: 3px solid #343a42; border-top-color: var(--accent);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+.progress-wrap { margin-bottom: 22px; }
+.progress {
+  height: 12px; border-radius: 999px; overflow: hidden;
+  background: var(--surface-in);
+  box-shadow: inset -2px -2px 6px var(--sh-light), inset 2px 2px 7px var(--sh-dark);
+}
+.progress > i {
+  display: block; height: 100%; width: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-warm));
+  transition: width .3s ease;
+}
+.progress-label { margin-top: 8px; font-size: 12px; color: var(--fg-faint); }
+
+@media (max-width: 900px) {
+  .layout { grid-template-columns: 1fr; height: auto; }
+  body { overflow: auto; }
+  .pane { height: auto; overflow: visible; }
+  .pane-left { border-right: none; border-bottom: 1px solid var(--rule); }
+}
